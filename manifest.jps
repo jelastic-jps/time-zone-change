@@ -8,6 +8,8 @@ description:
   text: "Choose Time Zone from dropdown list.  \n\nExample: America/Fortaleza"
   short: TimeZone Change Tool
 
+targetEditions: any
+
 targetNodes: 
   guestOSType: LINUX
 
