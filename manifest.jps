@@ -39,7 +39,7 @@ onBeforeInit: |
     }
   }
 
-onAfterRedeployContainer: installAgent
+onAfterRedeployContainer [${targetNodes.nodeGroup}]: installAgent
 
 onInstall: installAgent
 
