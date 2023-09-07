@@ -39,13 +39,15 @@ onBeforeInit: |
     }
   }
 
-onAfterRedeployContainer [${targetNodes.nodeGroup}]: installAgent
+onAfterRedeployContainer [${targetNodes.nodeGroup}]: 
+  installAgent:
+    targetNodes: ${targetNodes.nodeGroup}
 
 onInstall: installAgent
 
 actions:
   installAgent:
-    - cmd[*]: |-
+    - cmd[${this.targetNodes:*}]: |-
         echo "=== OLD TimeZone settings ===" >> /var/log/jpsaddon.log
         date  >> /var/log/jpsaddon.log
         ln -sf /usr/share/zoneinfo/${settings.timeZone} /etc/localtime
@@ -53,13 +55,14 @@ actions:
         date  >> /var/log/jpsaddon.log
       user: root
     - forEach (env.nodes):
-      - if ("${@i.nodeType}" === "docker"):
-          api: jelastic.environment.control.RestartContainerById
-          envName: ${env.name}
-          nodeid: ${@i.id}
-      - else:
-          api: jelastic.env.control.RestartNodeById
-          envName: ${env.name}
-          nodeid: ${@i.id}
+      - if ("${this.targetNodes:}" == "" || "${this.targetNodes:}" === "${@i.nodeGroup}"):
+        - if ("${@i.nodeType}" === "docker"):
+            api: jelastic.environment.control.RestartContainerById
+            envName: ${env.name}
+            nodeid: ${@i.id}
+        - else:
+            api: jelastic.env.control.RestartNodeById
+            envName: ${env.name}
+            nodeid: ${@i.id}
 
 success: Your TimeZone was changed to ${settings.timeZone}
