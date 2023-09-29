@@ -40,8 +40,12 @@ onBeforeInit: |
   }
 
 onAfterRedeployContainer [${targetNodes.nodeGroup}]: 
-  installAgent:
-    targetNodes: ${targetNodes.nodeGroup}
+  - if (event.params.nodeId):
+      - installAgent:
+          targetNodes: ${event.params.nodeId}
+  - else:
+      - installAgent:
+          targetNodes: ${event.params.nodeGroup}
 
 onInstall: installAgent
 
@@ -55,7 +59,7 @@ actions:
         date  >> /var/log/jpsaddon.log
       user: root
     - forEach (env.nodes):
-      - if ("${this.targetNodes:}" == "" || "${this.targetNodes:}" === "${@i.nodeGroup}"):
+      - if ("${this.targetNodes:}" == "" || "${this.targetNodes:}" === "${@i.nodeGroup}" || "${this.targetNodes:}" === "${@i.id}"):
         - if ("${@i.nodeType}" === "docker"):
             api: jelastic.environment.control.RestartContainerById
             envName: ${env.name}
